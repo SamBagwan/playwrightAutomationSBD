@@ -1,0 +1,6 @@
+2026/03/26-14:02:54.236 4f9d4 Reusing MANIFEST /Users/sameerbagwan/PlayWriteAutomation/C:\Users\Home\AppData\Local\Google\Chrome\User Data/Profile 1/Local Storage/leveldb/MANIFEST-000001
+2026/03/26-14:02:54.240 4f9d4 Recovering log #72
+2026/03/26-14:02:54.241 4f9d4 Reusing old log /Users/sameerbagwan/PlayWriteAutomation/C:\Users\Home\AppData\Local\Google\Chrome\User Data/Profile 1/Local Storage/leveldb/000072.log 
+2026/03/26-14:03:54.247 4f9d7 Level-0 table #75: started
+2026/03/26-14:03:54.261 4f9d7 Level-0 table #75: 41782 bytes OK
+2026/03/26-14:03:54.264 4f9d7 Delete type=0 #72
