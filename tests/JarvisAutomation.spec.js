@@ -149,7 +149,7 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
   });
 
   test ('05.Update co applicant details', async() => {
-    await page.waitForLoadState('networkidle');
+    await page.reload({waitUntil: 'networkidle'});
     await page.locator("a[class='tab-item nuxt-link-active'] p[class='tab-item-title']").click();
     await page.waitForLoadState('networkidle');
     const coApplicantTab = page.locator("div[id='Co-Applicant Details'] div button[type='button'] span span[class='appform-card-title']");
