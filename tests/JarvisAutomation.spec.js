@@ -18,7 +18,7 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
   test.beforeAll(async () => {
     browserContext = await chromium.launchPersistentContext(userDataDir, {
       channel: "chrome",
-      headless: true,
+      headless: false,
       args: ['--profile-directory=Default']
     });
     browserContext.setDefaultNavigationTimeout(60000);
@@ -273,11 +273,12 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
     const container = page.locator("div[aria-label='Resolve Kyc'] .el-dialog__footer");
     await container.waitFor({ state: 'visible' });
     await container.getByRole('button', { name: 'Resolve', exact: true }).click();
-    await page.reload({waitUntil: 'networkidle'});
+    await page.waitForTimeout(5000);
     console.log(">> SUCCESS: Moved to Credit Review and UAN verified.");
   });
 
   test('10. Move to Credit Approval stage', async () => {
+    await page.reload({waitUntil: 'networkidle'});
     await page.getByRole('textbox', { name: 'Application Actions' }).click();
     await page.locator('li').filter({ hasText: 'Move to Credit Approval' }).click();
     const confirmCTABtn = page.locator('button.el-button.el-button--default.el-button--small.el-button--primary');
