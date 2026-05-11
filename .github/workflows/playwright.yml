@@ -1,4 +1,5 @@
-name: Playwright Tests
+name: Playwright Tests (Turbo Parallel)
+
 on:
   push:
     branches: [ main, master ]
@@ -6,29 +7,40 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test: # This is the job name
+  test:
+    name: Run Automation Suite
     timeout-minutes: 60
-    runs-on: self-hosted  # CRITICAL: Use self-hosted here to access the .corp network
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: 3. Install Dependencies
+        # Using npm install instead of ci for faster local updates
+        run: npm install
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      - name: 4. Ensure Playwright Browsers
+        # This checks if browsers exist on your Mac; usually very fast
+        run: npx playwright install --with-deps
 
-    - name: Run Playwright tests
-      # Removed --headed. Even on self-hosted, CI should usually run headless.
-      run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium
+      - name: 5. Step 1 - Execute DSA Flow
+        # We run this with 1 worker to ensure the Login/SSO doesn't conflict
+        run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium --workers=1 --trace off
 
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - name: 6. Step 2 - Execute Jarvis Automation
+        # This runs only if Step 1 succeeds
+        run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=4 --trace off
+        
+      - name: 7. Upload Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-execution-report
+          path: playwright-report/
+          retention-days: 7
