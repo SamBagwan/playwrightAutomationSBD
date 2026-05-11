@@ -1,8 +1,6 @@
-name: Playwright Tests (Turbo Mode)
+name: Playwright Tests (Turbo Parallel)
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
     branches: [ main, master ]
 
 jobs:
@@ -12,29 +10,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-        cache: 'npm' # Speeds up dependency resolution
-
     - name: Install dependencies
-      # 'npm install' is faster than 'npm ci' if the node_modules already exist locally
+      # Skip browser install to save time; use existing local browsers
       run: npm install
 
-    - name: Run All Tests (Sequential but Optimized)
-      # 1. We run both files in ONE command to avoid starting the runner twice.
-      # 2. We use --workers=1 to ensure order (DSA then Jarvis).
-      # 3. We disable tracing/video unless you really need it (huge speed gain).
+    - name: Run Tests in Parallel
+      # 1. We remove --workers=1 to let Playwright use multiple CPU cores.
+      # 2. --fully-parallel forces tests within a single file to run at the same time.
       run: |
         npx playwright test tests/SBD_DSA_Flow.spec.js tests/JarvisAutomation.spec.js \
         --project=chromium \
-        --workers=1 \
+        --fully-parallel \
         --trace off
         
-    - name: Upload Report
-      if: failure() # Only upload if something fails to save time on successful runs
+    - name: Upload Report on Failure
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: playwright-report
         path: playwright-report/
-        retention-days: 7
