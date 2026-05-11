@@ -18,7 +18,7 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
   test.beforeAll(async () => {
     browserContext = await chromium.launchPersistentContext(userDataDir, {
       channel: "chrome",
-      headless: false,
+      headless: true,
       args: ['--profile-directory=Default']
     });
     browserContext.setDefaultNavigationTimeout(60000);

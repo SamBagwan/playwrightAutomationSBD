@@ -18,7 +18,7 @@ test.describe.serial('DSA Application Lifecycle', () => {
   test.beforeAll(async () => {
     browserContext = await chromium.launchPersistentContext(userDataDir, {
       channel: "chrome",
-      headless: false,
+      headless: true,
     });
     page = await browserContext.newPage();
     console.log("✅ Browser context launched successfully");
