@@ -14,12 +14,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Step 1: Execute DSA Flow
-        # Line 20: Corrected alignment and removed the worker flag if it was causing issues on your local config
-        run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium --workers=4 --trace off
+      - name: Step 1 Execute DSA Flow
+        run: |
+          npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium --workers=4 --trace off
 
-      - name: Step 2: Execute Jarvis Automation
-        run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=4 --trace off
+      - name: Step 2 Execute Jarvis Automation
+        run: |
+          npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=4 --trace off
         
       - name: Upload Report on Failure
         if: failure()
