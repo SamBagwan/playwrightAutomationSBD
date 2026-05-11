@@ -1,30 +1,46 @@
 name: Playwright Tests (Turbo Parallel)
+
 on:
   push:
+    branches: [ main, master ]
+  pull_request:
     branches: [ main, master ]
 
 jobs:
   test:
+    name: Run Automation Suite
     timeout-minutes: 60
     runs-on: self-hosted
     steps:
-      - name: Check out repository
+      - name: 1. Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: 3. Install Dependencies
+        # Using npm install instead of ci for faster local updates
         run: npm install
 
-      - name: Step 1 Execute DSA Flow
-        run: |
-          npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium --workers=4 --trace off
+      - name: 4. Ensure Playwright Browsers
+        # This checks if browsers exist on your Mac; usually very fast
+        run: npx playwright install --with-deps
 
-      - name: Step 2 Execute Jarvis Automation
-        run: |
-          npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=4 --trace off
+      - name: 5. Step 1 - Execute DSA Flow
+        # We run this with 1 worker to ensure the Login/SSO doesn't conflict
+        run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium --workers=1 --trace off
+
+      - name: 6. Step 2 - Execute Jarvis Automation
+        # This runs only if Step 1 succeeds
+        run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=4 --trace off
         
-      - name: Upload Report on Failure
-        if: failure()
+      - name: 7. Upload Results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-execution-report
           path: playwright-report/
+          retention-days: 7
