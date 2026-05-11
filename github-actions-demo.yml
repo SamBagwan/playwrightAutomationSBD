@@ -1,6 +1,9 @@
 name: Playwright Specific File Execution
 run-name: ${{ github.actor }} is running specific automation tests 🚀
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   Run-Specific-Test:
