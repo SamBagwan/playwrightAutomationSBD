@@ -100,7 +100,7 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
 
   test ('02. Dashboard', async()=> {
     await page.locator(".el-icon-document-copy").click();
-    page.waitForTimeout(3000);
+    await page.waitForTimeout(3000);
     page.locator("input[placeholder='Search by']").waitFor();
     await page.locator('i.el-input__icon.el-range__close-icon').click();
     await page.waitForTimeout(2000);
@@ -111,14 +111,14 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
     await page.waitForTimeout(2000);
     const appId = page.getByText(dynamicAppId, { exact: true })
     await expect(appId).toBeVisible()
-    appId.click();
+    await appId.click();
     console.log(">> SUCCESS: Application found and opened from Dashboard.");
   })
 
   test('03. Navigate to Application and Move to CAM Stage', async () => {
     await page.reload({waitUntil: 'networkidle'});
-    page.waitForTimeout(3000);
-    const movetoCAM = page.getByRole('textbox', { name: 'Application Actions' });
+    await page.waitForTimeout(3000);
+    const movetoCAM = page.locator('[placeholder="Application Actions"]');
     await expect(movetoCAM).toBeVisible({ timeout: 15000 });
     await movetoCAM.click()
     await page.getByText('Move to CAM').click()
