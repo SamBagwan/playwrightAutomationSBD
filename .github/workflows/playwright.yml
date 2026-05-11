@@ -1,6 +1,9 @@
 name: Playwright Tests (Turbo Parallel)
+
 on:
   push:
+    branches: [ main, master ]
+  pull_request:
     branches: [ main, master ]
 
 jobs:
@@ -12,15 +15,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        # Uses local cache on your Mac to speed up execution
         run: npm install
 
       - name: Step 1: Execute DSA Flow
-        # Added --workers to parallelize tests inside this specific file
         run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium --workers=4 --trace off
 
       - name: Step 2: Execute Jarvis Automation
-        # This only runs if Step 1 passes
         run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=4 --trace off
         
       - name: Upload Report on Failure
