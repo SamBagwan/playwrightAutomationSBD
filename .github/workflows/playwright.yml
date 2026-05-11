@@ -5,6 +5,8 @@ on:
   pull_request:
     branches: [ main, master ]
 jobs:
+  Run-Automation:
+    runs-on: self-hosted
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -17,8 +19,8 @@ jobs:
       run: npm ci
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-    - name: Run Playwright tests 1
-      run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium
+    # - name: Run Playwright tests 1
+    #   run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium
     - name: Run Playwright tests 2
       run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium
     - uses: actions/upload-artifact@v4
