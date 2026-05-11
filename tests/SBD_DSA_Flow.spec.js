@@ -31,6 +31,17 @@ test.describe.serial('DSA Application Lifecycle', () => {
     await page.locator('span:has-text("EXTERNAL LOGIN")').click();
     console.log("Step: Clicked External Login");
 
+    // Check if "Welcome back" screen appears with passkey login
+    const welcomeBackText = page.locator('text=Welcome back');
+    const signInAsAnotherUserBtn = page.locator('text=Sign in as another user');
+    
+    if (await welcomeBackText.isVisible({ timeout: 5000 }).catch(() => false)) {
+      console.log("Step: 'Welcome back' screen detected");
+      await signInAsAnotherUserBtn.click();
+      console.log("Step: Clicked 'Sign in as another user'");
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.getByRole('textbox', { name: 'Registered Email ID' }).fill('releaseautomation2025@gmail.com');
     await page.locator('button:has-text("SEND OTP")').click();
     console.log("Step: Email entered and OTP sent");
