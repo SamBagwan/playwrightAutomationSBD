@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Playwright Tests (Turbo Mode)
 on:
   push:
     branches: [ main, master ]
@@ -6,33 +6,35 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test: # This is the job name
+  test:
     timeout-minutes: 60
-    runs-on: self-hosted  # CRITICAL: Use self-hosted here to access the .corp network
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v4
 
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+        cache: 'npm' # Speeds up dependency resolution
 
     - name: Install dependencies
-      run: npm ci
+      # 'npm install' is faster than 'npm ci' if the node_modules already exist locally
+      run: npm install
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-
-    - name: Run Playwright tests 1
-      # Removed --headed. Even on self-hosted, CI should usually run headless.
-      run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium
-      
-    - name: Run Playwright tests 2
-      # Removed --headed. Even on self-hosted, CI should usually run headless.
-      run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium
-
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
+    - name: Run All Tests (Sequential but Optimized)
+      # 1. We run both files in ONE command to avoid starting the runner twice.
+      # 2. We use --workers=1 to ensure order (DSA then Jarvis).
+      # 3. We disable tracing/video unless you really need it (huge speed gain).
+      run: |
+        npx playwright test tests/SBD_DSA_Flow.spec.js tests/JarvisAutomation.spec.js \
+        --project=chromium \
+        --workers=1 \
+        --trace off
+        
+    - name: Upload Report
+      if: failure() # Only upload if something fails to save time on successful runs
+      uses: actions/upload-artifact@v4
       with:
         name: playwright-report
         path: playwright-report/
-        retention-days: 30
+        retention-days: 7
