@@ -69,7 +69,7 @@ test.describe.serial('DSA Application Lifecycle', () => {
     await page.locator("//span[normalize-space()='Search']").click();
     await page.waitForLoadState('networkidle');
     console.log("Step: Search button clicked and results loaded");
-    page.waitForTimeout(4000);
+    await page.waitForTimeout(4000);
     const searchList = await page.getByText(dynamicAppId, { exact: true });
     expect(searchList).toBeVisible();
     await searchList.click();
@@ -78,7 +78,11 @@ test.describe.serial('DSA Application Lifecycle', () => {
   });
 
   test('03 Data review stage - Business Details', async () => {
-    await page.locator('li.MuiListItem-root.css-dt78af').first().click();
+    await page.waitForTimeout(3000);
+    console.log("Step: Waiting for page to fully load after selection");
+    const businessListItem = page.locator('li.MuiListItem-root.css-dt78af').first();
+    await expect(businessListItem).toBeVisible({ timeout: 15000 });
+    await businessListItem.click();
     const businessDetails = page.locator('div.MuiDialogContent-root');
     await expect(businessDetails).toBeVisible({ timeout: 10000 });
     console.log("Step: Business Details modal opened");
