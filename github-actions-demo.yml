@@ -23,7 +23,8 @@ jobs:
 
       - name: Run Specific Playwright File
         # Change 'tests/SBD_DSA_Flow.spec.js' to your actual file path
-        run: npx playwright test tests/full_lifecycle.spec.js --project=chromium --headed
+        run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium --headed
+        run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium --headed
         
       - name: Upload Test Report
         if: always()
