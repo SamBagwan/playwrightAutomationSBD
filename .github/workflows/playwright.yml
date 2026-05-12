@@ -1,5 +1,4 @@
-name: Playwright Tests (Turbo Parallel)
-
+name: End-to-End Automation (API + UI)
 on:
   push:
     branches: [ main, master ]
@@ -7,42 +6,65 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
-    name: Run Automation Suite
-    timeout-minutes: 60
+  full-suite:
+    name: Execute API then UI
     runs-on: self-hosted
+    timeout-minutes: 60
     
-    # This block fixes the "self-signed certificate" error during artifact upload
     env:
-      NODE_TLS_REJECT_UNAUTHORIZED: '0'
+      NODE_TLS_REJECT_UNAUTHORIZED: '0' # Bypasses corporate SSL/Self-signed cert issues
 
     steps:
-      - name: 1. Checkout Repository
-        uses: actions/checkout@v4
+      # 1. Clear previous runs to ensure a clean workspace
+      - name: Cleanup Workspace
+        run: rm -rf ui-tests api-tests
 
-      - name: 2. Setup Node.js
+      # 2. Checkout Playwright Code (Main) into a subfolder
+      - name: Checkout Playwright (Main)
+        uses: actions/checkout@v4
+        with:
+          path: ui-tests
+
+      # 3. Checkout RestAssured Code (sbdFlow-Sameer) into a subfolder
+      - name: Checkout RestAssured (API Branch)
+        uses: actions/checkout@v4
+        with:
+          ref: sbdFlow-Sameer
+          path: api-tests
+
+      # 4. Setup Java for RestAssured
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # 5. Execute API Setup (RestAssured)
+      - name: Step 1 - Execute API (RestAssured)
+        run: |
+          cd api-tests
+          mvn test -Dtest=UATsbdflowSoleProp
+
+      # 6. Setup Node for Playwright
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'npm'
 
-      - name: 3. Install Dependencies
-        # Using npm install is faster on self-hosted runners than npm ci
-        run: npm install
+      # 7. Execute Playwright Automation
+      - name: Step 2 - Execute UI (Playwright)
+        run: |
+          cd ui-tests
+          npm install
+          npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=1 --trace off
 
-      - name: 4. Step 1 - Execute DSA Flow
-        # Using 1 worker for login-heavy steps to prevent session conflicts
-        run: npx playwright test tests/SBD_DSA_Flow.spec.js --project=chromium --workers=1 --trace off
-
-      - name: 5. Step 2 - Execute Jarvis Automation
-        # Using 4 workers for the heavy lifting once logged in
-        run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=4 --trace off
-        
-      - name: 6. Upload Results
-        # 'always()' ensures you get a report even if a test fails
+      # 8. Upload results if anything fails
+      - name: Upload Execution Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-execution-report
-          path: playwright-report/
+          name: full-execution-report
+          path: ui-tests/playwright-report/
           retention-days: 7
