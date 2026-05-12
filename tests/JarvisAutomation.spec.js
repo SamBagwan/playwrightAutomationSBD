@@ -30,6 +30,13 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
     await page.goto("https://jarvis.uat.creditsaison.corp/", { waitUntil: 'networkidle' });
     console.log(">> LOG: Navigated to Jarvis Portal.");
     
+    // Maximize the window
+    await page.evaluate(() => {
+      window.moveTo(0, 0);
+      window.resizeTo(window.screen.width, window.screen.height);
+    });
+    console.log(">> LOG: Window maximized.");
+    
     // Handle Google Account Selection / Google SSO Login
     try {
       // Check if "Choose an account" page is displayed
