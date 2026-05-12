@@ -19,7 +19,8 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
     browserContext = await chromium.launchPersistentContext(userDataDir, {
       channel: "chrome",
       headless: true,
-      args: ['--profile-directory=Default']
+      args: ['--profile-directory=Default'],
+      viewport: { width: 1920, height: 1080 }
     });
     browserContext.setDefaultNavigationTimeout(60000);
     page = await browserContext.newPage();
@@ -29,13 +30,6 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
   test('01. Access Portal and Initial Allocation', async () => {
     await page.goto("https://jarvis.uat.creditsaison.corp/", { waitUntil: 'networkidle' });
     console.log(">> LOG: Navigated to Jarvis Portal.");
-    
-    // Maximize the window
-    await page.evaluate(() => {
-      window.moveTo(0, 0);
-      window.resizeTo(window.screen.width, window.screen.height);
-    });
-    console.log(">> LOG: Window maximized.");
     
     // Handle Google Account Selection / Google SSO Login
     try {
