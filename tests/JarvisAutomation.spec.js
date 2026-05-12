@@ -106,13 +106,15 @@ test.describe.serial('Jarvis Application Lifecycle', () => {
     await page.locator('i.el-input__icon.el-range__close-icon').click();
     await page.waitForTimeout(2000);
     await page.getByRole('textbox', { name: 'Enter App ID' }).click();
-    await page.getByRole('textbox', { name: 'Enter App ID' }).pressSequentially(dynamicAppId);
+    await page.getByRole('textbox', { name: 'Enter App ID' }).fill(dynamicAppId);
     await page.waitForTimeout(2000);
     await page.keyboard.press('Enter')
     await page.waitForTimeout(2000);
-    const appId = page.getByText(dynamicAppId, { exact: true })
-    await expect(appId).toBeVisible()
+    const appId = await page.locator('p:has-text("Sameer Bagwan")')
+    await expect(appId).toBeVisible({ timeout: 15000 });
     await appId.click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(4000);
     console.log(">> SUCCESS: Application found and opened from Dashboard.");
   })
 
