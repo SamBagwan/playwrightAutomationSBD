@@ -11,7 +11,7 @@ jobs:
     name: Run Automation Suite
     timeout-minutes: 60
     runs-on: self-hosted
-    
+
     # This block fixes the "self-signed certificate" error during artifact upload
     env:
       NODE_TLS_REJECT_UNAUTHORIZED: '0'
@@ -37,7 +37,7 @@ jobs:
       - name: 5. Step 2 - Execute Jarvis Automation
         # Using 4 workers for the heavy lifting once logged in
         run: npx playwright test tests/JarvisAutomation.spec.js --project=chromium --workers=4 --trace off
-        
+
       - name: 6. Upload Results
         # 'always()' ensures you get a report even if a test fails
         if: always()
